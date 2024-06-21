@@ -51,10 +51,43 @@ class OrderService {
 
     val goods = mapOf<String,Double>("apple" to 0.6, "orange" to 0.25)
 
+    /**
+     * Stage 1 implementation, basic cost summation.
+     */
     fun createOrder(request: Map<String,Int>): Order {
         val items = request.map { (itemName, count) -> Item(itemName, count) }
         val cost = items.sumOf { goods.getOrDefault(it.name, 0).toDouble() * it.quantity }
         return Order(items, cost)
+    }
+
+    /**
+     * Stage 2 implementation, includes the offer math.
+     */
+    fun createOrderWithOffers(request: Map<String,Int>): Order {
+        val items = request.map { (itemName, count) -> Item(itemName, count) }
+        val cost = items.sumOf { computerOfferCosts(it) }
+        return Order(items, cost)
+    }
+
+    /**
+     * Impl here specifically for the offer use case.
+     */
+    fun computerOfferCosts(item: Item): Double {
+        return when(item.name) {
+            "apple" -> {
+                val groups = item.quantity / 2
+                val extras = item.quantity % 2
+                val cost = goods.getOrDefault(item.name, 0).toDouble()
+                (groups + extras) * cost
+            }
+            "orange" -> {
+                val groups = item.quantity / 3
+                val remaining = item.quantity % 3
+                val cost = goods.getOrDefault(item.name, 0).toDouble()
+                ((groups * 2) + remaining) * cost
+            }
+            else -> 0.0
+        }
     }
 }
 

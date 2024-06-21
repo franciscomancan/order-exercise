@@ -32,9 +32,32 @@ class OrderServiceTest {
         assertEquals(0.0, order.cost)
     }
 
+
+    // Need to adjust for this use case...
     @Test
     fun `test negatives`() {
         //etc..
         assertEquals(0, 0)
+    }
+
+    @Test
+    fun `test offer tiny order`() {
+        val request = mapOf("apple" to 1, "orange" to 1)
+        val order = OrderService().createOrderWithOffers(request)
+        assertEquals(0.85, order.cost)
+    }
+
+    @Test
+    fun `test offer order`() {
+        val request = mapOf("apple" to 2, "orange" to 3)
+        val order = OrderService().createOrderWithOffers(request)
+        assertEquals(1.1, order.cost)
+    }
+
+    @Test
+    fun `test random offer order`() {
+        val request = mapOf("apple" to 11, "orange" to 11, "dsflkajsdf" to 99)
+        val order = OrderService().createOrderWithOffers(request)
+        assertEquals(5.60, order.cost)
     }
 }
