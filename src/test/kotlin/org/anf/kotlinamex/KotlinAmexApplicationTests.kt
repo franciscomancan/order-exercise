@@ -10,4 +10,7 @@ class KotlinAmexApplicationTests {
 	fun contextLoads() {
 	}
 
+
+	// implement tests here that require the spring context only
+
 }

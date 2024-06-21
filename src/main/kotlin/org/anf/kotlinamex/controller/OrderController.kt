@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/order")
-class OrderController {
+class OrderController(val orderService: OrderService) {
+
+    data class OrderRequest(val items: Map<String,Int>)
 
     @GetMapping("/message")
     fun getMessage(): String {
@@ -26,10 +28,23 @@ class OrderController {
 
     @PostMapping("/create")
     fun createOrder(@RequestBody order: OrderRequest): ResponseEntity<Order> {
-        val order = OrderService().createOrder(order.items)
-        println(order)
+        val order = orderService.createOrder(order.items)
         return ResponseEntity.ok(order)
     }
 
-    data class OrderRequest(val items: Map<String,Int>)
+    @PostMapping("/create/offer")
+    fun createOrderWithOffer(@RequestBody order: OrderRequest): ResponseEntity<Order> {
+        val order = orderService.createOrderWithOffers(order.items)
+        return ResponseEntity.ok(order)
+    }
+
+    @GetMapping("/get-all")
+    fun getAllOrders(): ResponseEntity<List<Order>> {
+        return ResponseEntity.ok(orderService.fetchOrders())
+    }
+
+    @GetMapping("/get")
+    fun getOrder(orderId: String): ResponseEntity<Order> {
+        return ResponseEntity.ok(orderService.fetchOrder(orderId))
+    }
 }

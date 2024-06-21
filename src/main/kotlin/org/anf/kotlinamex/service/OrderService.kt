@@ -49,15 +49,21 @@ import org.springframework.stereotype.Service
 @Service
 class OrderService {
 
-    val goods = mapOf<String,Double>("apple" to 0.6, "orange" to 0.25)
+    val goodsPrices = mapOf<String,Double>("apple" to 0.6, "orange" to 0.25)
+
+    /** in-memory storage of relevent orders (don't restart the server !!) */
+    val storedOrders = mutableMapOf<String,Order>()
 
     /**
      * Stage 1 implementation, basic cost summation.
      */
     fun createOrder(request: Map<String,Int>): Order {
         val items = request.map { (itemName, count) -> Item(itemName, count) }
-        val cost = items.sumOf { goods.getOrDefault(it.name, 0).toDouble() * it.quantity }
-        return Order(items, cost)
+        val cost = items.sumOf { goodsPrices.getOrDefault(it.name, 0).toDouble() * it.quantity }
+
+        val result = Order(items, cost)
+        storedOrders[result.id] = result
+        return result
     }
 
     /**
@@ -66,7 +72,10 @@ class OrderService {
     fun createOrderWithOffers(request: Map<String,Int>): Order {
         val items = request.map { (itemName, count) -> Item(itemName, count) }
         val cost = items.sumOf { computerOfferCosts(it) }
-        return Order(items, cost)
+
+        val result = Order(items, cost)
+        storedOrders[result.id] = result
+        return result
     }
 
     /**
@@ -77,17 +86,25 @@ class OrderService {
             "apple" -> {
                 val groups = item.quantity / 2
                 val extras = item.quantity % 2
-                val cost = goods.getOrDefault(item.name, 0).toDouble()
+                val cost = goodsPrices.getOrDefault(item.name, 0).toDouble()
                 (groups + extras) * cost
             }
             "orange" -> {
                 val groups = item.quantity / 3
                 val remaining = item.quantity % 3
-                val cost = goods.getOrDefault(item.name, 0).toDouble()
+                val cost = goodsPrices.getOrDefault(item.name, 0).toDouble()
                 ((groups * 2) + remaining) * cost
             }
             else -> 0.0
         }
+    }
+
+    fun fetchOrder(id: String): Order {
+        return storedOrders.getOrDefault(id, Order(emptyList(), 0.0))
+    }
+
+    fun fetchOrders(): List<Order> {
+        return storedOrders.values.toList()
     }
 }
 
