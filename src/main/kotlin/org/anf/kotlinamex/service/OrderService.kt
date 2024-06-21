@@ -1,5 +1,7 @@
 package org.anf.kotlinamex.service
 
+import org.anf.kotlinamex.domain.Item
+import org.anf.kotlinamex.domain.Order
 import org.springframework.stereotype.Service
 
 /**
@@ -57,8 +59,8 @@ class OrderService {
 }
 
 
-data class Order(val orderItems: List<Item>, val cost: Double)
-data class Item(val name: String, val quantity: Int)
+
+
 
 
 
